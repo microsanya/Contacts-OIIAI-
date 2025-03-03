@@ -19,7 +19,7 @@ namespace View.Model
         /// <summary>
         /// Приватное поле для номера телефона.
         /// </summary>
-        private int _phoneNumber;
+        private string _phoneNumber;
 
         /// <summary>
         /// Приватное поле для почтового адреса.
@@ -45,7 +45,7 @@ namespace View.Model
         /// <summary>
         /// Принимает и задает номер телефона пользователя.
         /// </summary>
-        public int PhoneNumber
+        public string PhoneNumber
         {
             get
             {
@@ -79,7 +79,7 @@ namespace View.Model
         /// <param name="name">Имя контакта</param>
         /// <param name="phoneNumber">Номер телефона</param>
         /// <param name="email">Почта контакта</param>
-        public Contact(string name, int phoneNumber, string email)
+        public Contact(string name, string phoneNumber, string email)
         {
             Name = name;
             PhoneNumber = phoneNumber;
@@ -93,7 +93,7 @@ namespace View.Model
         public Contact()
         {
             Name = "Имя Фамилия Отчество";
-            PhoneNumber = 0;
+            PhoneNumber = "89095490417";
             Email = "examplemail@gmail.com";
         }
     }
