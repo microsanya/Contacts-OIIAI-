@@ -5,8 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Contacts"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="665" Width="860">
+    <Grid Margin="0,0,10,-6">
+        <GroupBox x:Name="EditContactGroupBox" Header="Edit Contact" Margin="47,60,447,181">
+            <Grid>
+                <Label x:Name="NameEditLabel" Content="Name:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="31" Width="90"/>
+                <TextBox x:Name="NameEditTextBox" HorizontalAlignment="Center" Margin="0,46,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="324" Height="26"/>
+                <Label x:Name="PNumberEditLabel" Content="Phone Number" HorizontalAlignment="Left" Margin="10,77,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.569,0.481" Height="31" Width="90"/>
+                <TextBox x:Name="EmaiEditTextBox" HorizontalAlignment="Center" Margin="0,179,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="324" Height="26"/>
+                <Label x:Name="EmailEditLabel" Content="Email" HorizontalAlignment="Left" Margin="10,143,0,0" VerticalAlignment="Top" Height="31" Width="90"/>
+                <TextBox x:Name="PNumberEditTextBox" HorizontalAlignment="Center" Margin="0,113,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="324" Height="25"/>
+            </Grid>
+        </GroupBox>
+        <GroupBox x:Name="ReadContactGroupBox" Header="Read Contact" Margin="425,60,47,181"/>
 
     </Grid>
 </Window>
