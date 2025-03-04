@@ -12,7 +12,7 @@ namespace View.ViewModel
     /// <summary>
     /// Класс, хранящий в себе реализацию сохранения контакта.
     /// </summary>
-    class SaveCommand : ICommand
+    public class SaveCommand : ICommand
     {
         /// <summary>
         /// Делегат, возвращает текущий контакт, чтобы его сохранить.

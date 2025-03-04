@@ -12,9 +12,8 @@ namespace View.ViewModel
     /// <summary>
     /// Класс VM для главного окна.
     /// </summary>
-    class MainVM : INotifyPropertyChanged
+    public class MainVM : INotifyPropertyChanged
     {
-
         /// <summary>
         /// Текущий контакт.
         /// </summary>
@@ -91,6 +90,9 @@ namespace View.ViewModel
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public string Email
         {
             get => _currentContact.Email;

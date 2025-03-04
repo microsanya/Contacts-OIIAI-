@@ -14,7 +14,7 @@ namespace View.ViewModel
     /// <summary>
     /// Класс, хранящий в себе реализацию подгрузки контакта.
     /// </summary>
-    class LoadCommand : ICommand
+    public class LoadCommand : ICommand
     {
         /// <summary>
         /// Делегат, который устанавливает подгруженный контакт.

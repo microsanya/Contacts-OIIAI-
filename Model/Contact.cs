@@ -9,7 +9,7 @@ namespace View.Model
     /// <summary>
     /// Класс, хранящий в себе контакт пользователя (имя, телефон, почта).
     /// </summary>
-    class Contact
+    public class Contact
     {
         /// <summary>
         /// Приватное поле для имени пользователя.

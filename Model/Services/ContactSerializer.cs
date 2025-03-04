@@ -12,7 +12,7 @@ namespace View.Model.Services
     /// <summary>
     /// Класс, содержащий реализацию сохранения и подгрузки контактов (статический).
     /// </summary>
-    static class ContactSerializer
+    public static class ContactSerializer
     {
         /// <summary>
         /// Полный путь к файлу, в котором хранятся контакты.
@@ -25,7 +25,6 @@ namespace View.Model.Services
         public static void CreateDirectory()
         {
             _filePath = Path.Combine(@"D:\Документы", "Contacts", "contacts.json");
-
             var directory = Path.GetDirectoryName(_filePath);
             if (!Directory.Exists(directory))
             {
