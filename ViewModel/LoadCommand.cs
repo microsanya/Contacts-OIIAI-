@@ -56,7 +56,7 @@ namespace View.ViewModel
         /// <param name="parameter">Любой параметр.</param>
         public void Execute(object parameter)
         {
-            var contact = ContactSerializer.LoadContact();
+            var contact = ContactSerializer.LoadContacts();
             if (contact != null)
             {
                 _setContact(contact);

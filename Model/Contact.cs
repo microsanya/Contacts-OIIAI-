@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace View.Model
     /// <summary>
     /// Класс, хранящий в себе контакт пользователя (имя, телефон, почта).
     /// </summary>
-    public class Contact
+    public class Contact : INotifyPropertyChanged
     {
         /// <summary>
         /// Приватное поле для имени пользователя.
@@ -32,13 +33,16 @@ namespace View.Model
         /// </summary>
         public string Name
         {
-            get
-            {
-                return _name;
-            }
+            get => _name;
             set
             {
+                if (_name == value)
+                {
+                    return;
+                }
+
                 _name = value;
+                OnPropertyChanged(nameof(Name));
             }
         }
 
@@ -47,13 +51,16 @@ namespace View.Model
         /// </summary>
         public string PhoneNumber
         {
-            get
-            {
-                return _phoneNumber;
-            }
+            get => _phoneNumber;
             set
             {
+                if (_phoneNumber == value)
+                {
+                    return;
+                }
+
                 _phoneNumber = value;
+                OnPropertyChanged(nameof(PhoneNumber));
             }
         }
 
@@ -62,19 +69,22 @@ namespace View.Model
         /// </summary>
         public string Email
         {
-            get
-            {
-                return _email;
-            }
+            get => _email;
             set
             {
+                if (_email == value)
+                {
+                    return;
+                }
+
                 _email = value;
+                OnPropertyChanged(nameof(Email));
             }
         }
 
         /// <summary>
         /// Конструктор Contact c параметрами.
-        /// Инициализирует новый класс с указанными значениями.
+        /// Инициализирует новый класс <see cref="Contact"/> с указанными значениями.
         /// </summary>
         /// <param name="name">Имя контакта</param>
         /// <param name="phoneNumber">Номер телефона</param>
@@ -87,7 +97,7 @@ namespace View.Model
         }
 
         /// <summary>
-        /// Конструктор класса Contact. 
+        /// Конструктор класса <see cref="Contact"/>. 
         /// Инициализирует поля значениями по умолчанию.
         /// </summary>
         public Contact()
@@ -95,6 +105,20 @@ namespace View.Model
             Name = "Имя Фамилия Отчество";
             PhoneNumber = "89095490417";
             Email = "examplemail@gmail.com";
+        }
+
+        /// <summary>
+        /// Событие, вызывается когда изменяется состояние объекта.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Вызывает событие <see cref="PropertyChanged"/> для обновления интерфейса.
+        /// </summary>
+        /// <param name="propertyName">Имя измененного свойства.</param>
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

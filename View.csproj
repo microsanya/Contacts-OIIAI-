@@ -8,7 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ViewModel\LoadCommand.cs" />
+    <Compile Remove="ViewModel\SaveCommand.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="contactsIcon.png" />
+    <None Remove="place_contact.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,7 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="contactsIcon.png" />
+    <Resource Include="contactsIcon.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="place_contact.png" />
   </ItemGroup>
 
 </Project>
