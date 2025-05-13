@@ -54,7 +54,18 @@ namespace View.ViewModel
             get => _editableContact;
             set
             {
-                if (_isChangingContact || _editableContact == value)
+
+                if (_editableContact != null && !IsReadOnlyMode)
+                {   
+                    CancelEdit();
+                }
+
+                _editableContact = value;
+                OnPropertyChanged(nameof(IsAddOrEditMode));
+                OnPropertyChanged(nameof(CurrentContact));
+                OnPropertyChanged(nameof(IsContactSelected));
+
+                /*if (_isChangingContact || _editableContact == value)
                     return;
 
                 _isChangingContact = true;
@@ -80,7 +91,7 @@ namespace View.ViewModel
                 OnPropertyChanged(nameof(IsContactSelected));
                 OnPropertyChanged(nameof(IsAddOrEditMode));
 
-                _isChangingContact = false;
+                _isChangingContact = false;*/
             }
         }
 
@@ -109,27 +120,31 @@ namespace View.ViewModel
             }
         }
 
-        public bool IsContactSelected => _originalContact != null;
+        public bool IsContactSelected => _editableContact != null;
 
         public void EditContact(object parameter)
         {
-            if (_originalContact != null)
+            _originalContact = (Contact)CurrentContact.Clone();
+            IsReadOnlyMode = false;
+            /*if (_originalContact != null)
             {
                 _editableContact = new Contact(_originalContact.Name, _originalContact.PhoneNumber, _originalContact.Email);
                 CurrentContact = _originalContact; 
                 IsReadOnlyMode = false;
                 _hasChangesNotApplied = true;
-            }
+            }*/
         }
 
 
         public void RemoveContact(object parameter)
         {
-            if (_originalContact == null)
+            if (CurrentContact == null)
+            {
                 return;
+            }
 
-            int index = Contacts.IndexOf(_originalContact);
-            Contacts.Remove(_originalContact);
+            int index = Contacts.IndexOf(CurrentContact);
+            Contacts.Remove(CurrentContact);
 
             if (Contacts.Any())
             {
@@ -145,8 +160,9 @@ namespace View.ViewModel
 
         public void AddContact(object parameter)
         {
-            _originalContact = null;
-            _editableContact = new Contact();
+            /*_originalContact = null;*/
+            CurrentContact = null;
+            CurrentContact = new Contact();
             IsReadOnlyMode = false;
             _isAddingNewContact = true;
             OnPropertyChanged(nameof(CurrentContact));
@@ -200,7 +216,17 @@ namespace View.ViewModel
 
         private void CancelEdit()
         {
-            _editableContact = _originalContact != null ? (Contact)_originalContact.Clone() : null;
+            if (_originalContact != null)
+            {
+                CurrentContact.Name = _originalContact.Name;
+                CurrentContact.PhoneNumber = _originalContact.PhoneNumber;
+                CurrentContact.Email = _originalContact.Email;
+            }
+
+            IsReadOnlyMode = true;
+            OnPropertyChanged(nameof(IsReadOnlyMode));
+            OnPropertyChanged(nameof(IsAddOrEditMode));
+            /*_editableContact = _originalContact != null ? (Contact)_originalContact.Clone() : null;
             _hasChangesNotApplied = false;
 
             CurrentContact = null;
@@ -209,7 +235,7 @@ namespace View.ViewModel
 
             IsReadOnlyMode = true;
 
-            _hasChangesNotApplied = false;
+            _hasChangesNotApplied = false;*/
         }
 
         private void RefreshCurrentContact()
@@ -224,7 +250,7 @@ namespace View.ViewModel
 
         private bool CanAddContact(object parameter) => !IsAddOrEditMode;
 
-        private bool CanEditContact(object parameter) => IsContactSelected && !IsAddOrEditMode && !_hasChangesNotApplied;
+        private bool CanEditContact(object parameter) => IsContactSelected && !IsAddOrEditMode;
 
         private bool CanRemoveContact(object parameter) => IsContactSelected && !IsAddOrEditMode;
 
