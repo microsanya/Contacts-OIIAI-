@@ -30,35 +30,5 @@ namespace Contacts
             InitializeComponent();
             DataContext = new MainVM();
         }
-
-        /// <summary>
-        /// Метод для валидации номера телефона.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PhoneNumberPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = !Regex.IsMatch(e.Text, @"[\d\-\(\)\+\s]");
-        }
-
-        /// <summary>
-        /// Метод для валидации имени.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NamePreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = !Regex.IsMatch(e.Text, @"[A-Za-zА-Яа-яЁё\s]");
-        }
-
-        /// <summary>
-        /// Метод для валидации емайла.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void EmailPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
-            e.Handled = !Regex.IsMatch(e.Text, @"^[a-zA-Z0-9._%+-@]+$");
-        }
     }
 }

@@ -233,6 +233,18 @@ namespace View.ViewModel
         /// </summary>
         /// <param name="parameter">Параметр команды.</param>
         /// <returns>Возвращает <c>true</c>, если изменения можно применить; иначе <c>false</c>.</returns>
-        private bool CanApplyContact(object parameter) => IsAddOrEditMode;
+        private bool CanApplyContact(object parameter) => IsAddOrEditMode && !HasValidationErrors;
+
+        /// <summary>
+        /// Определяет, есть ли ошибки валидации у выбранного контакта.
+        /// </summary>
+        /// <returns>
+        /// Возвращает <c>true</c>, если у выбранного контакта есть ошибки валидации
+        /// в полях "Name", "PhoneNumber" или "Email"; иначе <c>false</c>.
+        /// </returns>
+        private bool HasValidationErrors => CurrentContact != null &&
+                                           (!string.IsNullOrEmpty(CurrentContact["Name"]) ||
+                                            !string.IsNullOrEmpty(CurrentContact["PhoneNumber"]) ||
+                                            !string.IsNullOrEmpty(CurrentContact["Email"]));
     }
 }

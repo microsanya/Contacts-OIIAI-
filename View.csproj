@@ -22,10 +22,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="contactsIcon.png">
+    <Resource Include="Resourses\contactsIcon.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="place_contact.png" />
+    <Resource Include="Resourses\place_contact.png" />
   </ItemGroup>
 
 </Project>
