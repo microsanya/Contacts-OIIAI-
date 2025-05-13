@@ -7,6 +7,9 @@ using System.Text.RegularExpressions;
 /// </summary>
 public class Contact : INotifyPropertyChanged, IDataErrorInfo, ICloneable
 {
+
+    private bool _isValidating;
+
     /// <summary>
     /// Максимальное количество символов для текстового блока.
     /// </summary>
@@ -66,13 +69,11 @@ public class Contact : INotifyPropertyChanged, IDataErrorInfo, ICloneable
         get => _name;
         set
         {
-            if (_name == value)
+            if (_name != value)
             {
-                return;
+                _name = value;
+                OnPropertyChanged(nameof(Name));
             }
-
-            _name = value;
-            OnPropertyChanged(nameof(Name));
         }
     }
 
@@ -84,13 +85,11 @@ public class Contact : INotifyPropertyChanged, IDataErrorInfo, ICloneable
         get => _phoneNumber;
         set
         {
-            if (_phoneNumber == value)
+            if (_phoneNumber != value)
             {
-                return;
+                _phoneNumber = value;
+                OnPropertyChanged(nameof(PhoneNumber));
             }
-
-            _phoneNumber = value;
-            OnPropertyChanged(nameof(PhoneNumber));
         }
     }
 
@@ -102,13 +101,11 @@ public class Contact : INotifyPropertyChanged, IDataErrorInfo, ICloneable
         get => _email;
         set
         {
-            if (_email == value)
+            if (_email != value)
             {
-                return;
+                _email = value;
+                OnPropertyChanged(nameof(Email));
             }
-
-            _email = value;
-            OnPropertyChanged(nameof(Email));
         }
     }
 
@@ -140,39 +137,43 @@ public class Contact : INotifyPropertyChanged, IDataErrorInfo, ICloneable
     {
         get
         {
-            switch (columnName)
+            try
             {
-                case "Name":
-                    {
-                        if (string.IsNullOrWhiteSpace(Name) || Name.Length > MaxTextBoxSymbols)
+                switch (columnName)
+                {
+                    case nameof(PhoneNumber):
                         {
-                            return "Имя должно содержать хотя бы 2 символа и не более 100";
-                        }
-
-                        break;
-                    }
-
-                case "PhoneNumber":
-                    {
-                        if (string.IsNullOrWhiteSpace(PhoneNumber)
+                            if (string.IsNullOrWhiteSpace(PhoneNumber)
                                         || PhoneNumber.Length > MaxPhoneNumberTextBoxSymbols
                                         || !Regex.IsMatch(PhoneNumber, @"^[\d+\-()\s]+$"))
-                        {
-                            return "Номер телефона может содержать только цифры и символы '+()-'.";
+                            {
+                                return "Номер телефона может содержать только цифры и символы '+()-'.";
+                            }
+                            break;
                         }
 
-                        break;
-                    }
-
-                case "Email":
-                    {
-                        if (string.IsNullOrWhiteSpace(Email) || Email.Length > MaxTextBoxSymbols || !Email.Contains("@"))
+                    case nameof(Email):
                         {
-                            return "Почта должна содержать символ '@'.";
+                            if (string.IsNullOrWhiteSpace(Email) || Email.Length > MaxTextBoxSymbols || !Email.Contains("@"))
+                            {
+                                return "Почта должна содержать символ '@'.";
+                            }
+                            break;
                         }
 
-                        break;
-                    }
+                    case nameof(Name):
+                        {
+                            if (string.IsNullOrWhiteSpace(Name) || Name.Length > MaxTextBoxSymbols)
+                            {
+                                return "Имя должно содержать хотя бы 2 символа и не более 100";
+                            }
+                            break;
+                        }
+                }
+            }
+            finally
+            {
+                _isValidating = false; 
             }
 
             return null;

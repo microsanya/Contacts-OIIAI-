@@ -30,5 +30,11 @@ namespace Contacts
             InitializeComponent();
             DataContext = new MainVM();
         }
+
+        //private void ContactList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    ContactControl.CancelPendingEdits();
+        //    CurrentContact = (Contact)e.AddedItems[0];
+        //}
     }
 }

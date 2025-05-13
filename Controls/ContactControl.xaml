@@ -15,10 +15,7 @@
             <Setter Property="Background" Value="White"/>
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="ToolTip" 
-                    Value="{Binding RelativeSource={RelativeSource Self}, 
-                Path=(Validation.Errors).CurrentItem.ErrorContent, 
-                Mode=OneWay}"/>
+            <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors).CurrentItem.ErrorContent, Mode=OneWay}"/>
             <Style.Triggers>
 
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.HasError)}" Value="True">
@@ -33,7 +30,7 @@
                         </Setter.Value>
                     </Setter>
                 </DataTrigger>
-                
+
                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.HasError)}" Value="False">
                     <Setter Property="Background" Value="White"/>
                     <Setter Property="BorderBrush" Value="Gray"/>
@@ -119,7 +116,7 @@
                 Margin="0 3 0 0"
                 IsReadOnly="{Binding DataContext.IsReadOnlyMode, RelativeSource={RelativeSource AncestorType=Window}}"
                 Style="{StaticResource ErrorTextBoxStyle}"
-                Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+                Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
         </StackPanel>
 
         <Button

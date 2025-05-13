@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Xml.Linq;
@@ -13,54 +14,26 @@ using View.Model.Services;
 
 namespace View.ViewModel
 {
-    /// <summary>
-    /// Класс VM для главного окна.
-    /// </summary>
     public class MainVM : INotifyPropertyChanged
     {
-        /// <summary>
-        /// Текущий контакт.
-        /// </summary>
-        private Contact _currentContact;
-
-        /// <summary>
-        /// Значение, указывающее, находятся ли поля доступными только для чтения.
-        /// </summary>
+        private Contact _originalContact;
+        private Contact _editableContact;
         private bool _isReadOnlyMode = true;
 
-        /// <summary>
-        /// Событие, срабатывает когда происходят изменения в свойствах.
-        /// </summary>
+        private bool _isChangingContact = false;
+
+        private bool _hasChangesNotApplied = false;
+        private bool _isAddingNewContact = false;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        /// <summary>
-        /// Команда для добавления нового контакта.
-        /// </summary>
         public ICommand AddCommand { get; }
-
-        /// <summary>
-        /// Команда для редактирования выбранного контакта.
-        /// </summary>
         public ICommand EditCommand { get; }
-
-        /// <summary>
-        /// Команда для удаления выбранного контакта.
-        /// </summary>
         public ICommand RemoveCommand { get; }
-
-        /// <summary>
-        /// Команда для применения изменений в выбранном контакте.
-        /// </summary>
         public ICommand ApplyCommand { get; }
 
-        /// <summary>
-        /// Список контактов.
-        /// </summary>
         public ObservableCollection<Contact> Contacts { get; set; }
 
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MainVM"/>.
-        /// </summary>
         public MainVM()
         {
             ContactSerializer.CreateDirectory();
@@ -71,44 +44,60 @@ namespace View.ViewModel
             ApplyCommand = new RelayCommand(ApplyContact, CanApplyContact);
         }
 
-        /// <summary>
-        /// Вызывает событие <see cref="PropertyChanged"/> для обновления интерфейса.
-        /// </summary>
-        /// <param name="propertyName">Имя измененного свойства.</param>
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        /// <summary>
-        /// Возвращает и задает текущий контакт.
-        /// </summary>
         public Contact CurrentContact
         {
-            get => _currentContact;
+            get => _editableContact;
             set
             {
-                if (_currentContact == value)
+                if (_isChangingContact || _editableContact == value)
+                    return;
+
+                _isChangingContact = true;
+
+                if (_editableContact != null && !IsContactValid(_editableContact))
                 {
+                    CancelEdit();
+                    _isChangingContact = false;
                     return;
                 }
 
-                CancelEdit();
-                _currentContact = value;
-                OnPropertyChanged(nameof(IsAddOrEditMode));
+                if ((_hasChangesNotApplied || _isAddingNewContact) && _editableContact != null)
+                {
+                    CancelEdit();
+                    _hasChangesNotApplied = false;
+                    _isAddingNewContact = false;
+                }
+
+                _originalContact = value;
+                _editableContact = value != null ? (Contact)value.Clone() : null;
+
                 OnPropertyChanged(nameof(CurrentContact));
                 OnPropertyChanged(nameof(IsContactSelected));
+                OnPropertyChanged(nameof(IsAddOrEditMode));
+
+                _isChangingContact = false;
             }
         }
 
-        /// <summary>
-        /// Возвращает значение, указывающее, редактируется ли контакт.
-        /// </summary>
+
+        private bool IsContactValid(Contact contact)
+        {
+            if (contact == null) return true;
+
+            var nameError = contact[nameof(Contact.Name)];
+            var phoneError = contact[nameof(Contact.PhoneNumber)];
+            var emailError = contact[nameof(Contact.Email)];
+
+            return string.IsNullOrEmpty(nameError) && string.IsNullOrEmpty(phoneError) && string.IsNullOrEmpty(emailError);
+        }
+
         public bool IsAddOrEditMode => !IsReadOnlyMode;
 
-        /// <summary>
-        /// Получает или задает значение, указывающее, находится ли приложение в режиме редактирования.
-        /// </summary>
         public bool IsReadOnlyMode
         {
             get => _isReadOnlyMode;
@@ -120,33 +109,27 @@ namespace View.ViewModel
             }
         }
 
-        /// <summary>
-        /// Проверяет, выбран ли контакт.
-        /// </summary>
-        public bool IsContactSelected => _currentContact != null;
+        public bool IsContactSelected => _originalContact != null;
 
-        /// <summary>
-        /// Редактирует выбранный контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
         public void EditContact(object parameter)
         {
-            IsReadOnlyMode = false;
+            if (_originalContact != null)
+            {
+                _editableContact = new Contact(_originalContact.Name, _originalContact.PhoneNumber, _originalContact.Email);
+                CurrentContact = _originalContact; 
+                IsReadOnlyMode = false;
+                _hasChangesNotApplied = true;
+            }
         }
 
-        /// <summary>
-        /// Удаляет выбранный контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
+
         public void RemoveContact(object parameter)
         {
-            if (CurrentContact == null)
-            {
+            if (_originalContact == null)
                 return;
-            }
 
-            int index = Contacts.IndexOf(CurrentContact);
-            Contacts.Remove(CurrentContact);
+            int index = Contacts.IndexOf(_originalContact);
+            Contacts.Remove(_originalContact);
 
             if (Contacts.Any())
             {
@@ -160,21 +143,16 @@ namespace View.ViewModel
             ContactSerializer.SaveContact(Contacts);
         }
 
-        /// <summary>
-        /// Добавляет новый контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
         public void AddContact(object parameter)
         {
-            CurrentContact = null;
-            CurrentContact = new Contact();
+            _originalContact = null;
+            _editableContact = new Contact();
             IsReadOnlyMode = false;
+            _isAddingNewContact = true;
+            OnPropertyChanged(nameof(CurrentContact));
+            OnPropertyChanged(nameof(IsContactSelected));
         }
 
-        /// <summary>
-        /// Применяет изменения к выбранному контакту.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
         public void ApplyContact(object parameter)
         {
             if (parameter is not BindingGroup bindingGroup)
@@ -183,68 +161,79 @@ namespace View.ViewModel
             }
 
             bindingGroup.CommitEdit();
-            if (CurrentContact == null)
+
+            if (_editableContact == null || !IsContactValid(_editableContact))
             {
+                CancelEdit();
                 return;
             }
 
-            if (!Contacts.Contains(CurrentContact))
+            if (_originalContact != null)
             {
-                Contacts.Add(CurrentContact);
+                int index = Contacts.IndexOf(_originalContact);
+                if (index != -1)
+                {
+                    Contacts[index] = _editableContact;
+                    _originalContact = _editableContact;
+                }
+            }
+            else
+            {
+                Contacts.Add(_editableContact);
             }
 
             IsReadOnlyMode = true;
             ContactSerializer.SaveContact(Contacts);
+            _hasChangesNotApplied = false;
+
+            _hasChangesNotApplied = false;
+
+            CurrentContact = _editableContact;
+
+            _editableContact = null;
+
+            OnPropertyChanged(nameof(Contacts));
+            OnPropertyChanged(nameof(CurrentContact));
         }
 
-        /// <summary>
-        /// Отменяет редактирование контакта.
-        /// </summary>
+
+
         private void CancelEdit()
         {
+            _editableContact = _originalContact != null ? (Contact)_originalContact.Clone() : null;
+            _hasChangesNotApplied = false;
+
+            CurrentContact = null;
+            CurrentContact = _editableContact;
+            RefreshCurrentContact();
+
             IsReadOnlyMode = true;
-            OnPropertyChanged(nameof(IsReadOnlyMode));
-            OnPropertyChanged(nameof(IsAddOrEditMode));
+
+            _hasChangesNotApplied = false;
         }
 
-        /// <summary>
-        /// Проверяет, можно ли добавить контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
-        /// <returns>Возвращает <c>true</c>, если контакт можно добавить; иначе <c>false</c>.</returns>
+        private void RefreshCurrentContact()
+        {
+            var temp = _editableContact;
+            _editableContact = null;
+            OnPropertyChanged(nameof(CurrentContact));
+
+            _editableContact = temp;
+            OnPropertyChanged(nameof(CurrentContact));
+        }
+
         private bool CanAddContact(object parameter) => !IsAddOrEditMode;
 
-        /// <summary>
-        /// Проверяет, можно ли редактировать выбранный контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
-        /// <returns>Возвращает <c>true</c>, если контакт можно редактировать; иначе <c>false</c>.</returns>
-        private bool CanEditContact(object parameter) => IsContactSelected && !IsAddOrEditMode;
+        private bool CanEditContact(object parameter) => IsContactSelected && !IsAddOrEditMode && !_hasChangesNotApplied;
 
-        /// <summary>
-        /// Проверяет, можно ли удалить выбранный контакт.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
-        /// <returns>Возвращает <c>true</c>, если контакт можно удалить; иначе <c>false</c>.</returns>
         private bool CanRemoveContact(object parameter) => IsContactSelected && !IsAddOrEditMode;
 
-        /// <summary>
-        /// Проверяет, можно ли применить изменения для выбранного контакта.
-        /// </summary>
-        /// <param name="parameter">Параметр команды.</param>
-        /// <returns>Возвращает <c>true</c>, если изменения можно применить; иначе <c>false</c>.</returns>
         private bool CanApplyContact(object parameter) => IsAddOrEditMode && !HasValidationErrors;
 
-        /// <summary>
-        /// Определяет, есть ли ошибки валидации у выбранного контакта.
-        /// </summary>
-        /// <returns>
-        /// Возвращает <c>true</c>, если у выбранного контакта есть ошибки валидации
-        /// в полях "Name", "PhoneNumber" или "Email"; иначе <c>false</c>.
-        /// </returns>
-        private bool HasValidationErrors => CurrentContact != null &&
-                                           (!string.IsNullOrEmpty(CurrentContact["Name"]) ||
-                                            !string.IsNullOrEmpty(CurrentContact["PhoneNumber"]) ||
-                                            !string.IsNullOrEmpty(CurrentContact["Email"]));
+        private bool HasValidationErrors => _editableContact != null &&
+                                            (!string.IsNullOrEmpty(_editableContact[nameof(Contact.Name)]) ||
+                                             !string.IsNullOrEmpty(_editableContact[nameof(Contact.PhoneNumber)]) ||
+                                             !string.IsNullOrEmpty(_editableContact[nameof(Contact.Email)]));
     }
+
 }

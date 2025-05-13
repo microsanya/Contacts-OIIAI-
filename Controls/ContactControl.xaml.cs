@@ -28,6 +28,11 @@ namespace View.Controls
             InitializeComponent();
         }
 
+        //public void CancelPendingEdits()
+        //{
+        //    BindingGroup.CancelEdit();
+        //}
+
         /// <summary>
         /// Обработчик события предварительного ввода текста в TextBox.
         /// Разрешает ввод только цифр, знаков.
